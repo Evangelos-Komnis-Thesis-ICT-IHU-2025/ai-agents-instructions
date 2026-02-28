@@ -67,3 +67,100 @@ components:
           type: integer
         name:
           type: string
+```
+
+### 4. Rules
+- Only include **existing API endpoints** in the code.
+- Infer missing information (e.g., response schema, parameter types) based on code analysis and common conventions.
+- Generate example request/response data if not explicitly provided.
+- Group endpoints using tags for clarity.
+- Avoid documenting internal/private endpoints unless marked as public.
+
+### 5. Output
+- The AI should output a **valid OpenAPI document** (JSON or YAML) for the detected APIs.
+- The output should be ready to use with Swagger UI or other OpenAPI tools.
+
+---
+
+## Input
+- The AI receives the **source code folder or snippet**, which may include:
+  - Controllers
+  - Routes files
+  - Annotations
+  - Comments in code
+
+---
+
+## Example
+
+**Input code snippet (Node.js Express example)**:
+```javascript
+// GET /users
+app.get('/users', (req, res) => {
+  res.json([{ id: 1, name: 'John' }]);
+});
+
+// POST /auth/login
+app.post('/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  res.json({ token: 'jwt-token' });
+});
+```
+
+**Expected OpenAPI output (YAML)**:
+```yaml
+openapi: 3.0.0
+info:
+  title: My API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      summary: Retrieve all users
+      tags:
+        - users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /auth/login:
+    post:
+      summary: User login
+      tags:
+        - auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+```
